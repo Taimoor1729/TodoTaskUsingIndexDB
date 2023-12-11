@@ -1,12 +1,28 @@
-# Getting Started with Create React App
+# Todo Task using IndexDB
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
+# How To Use this Todo Task
+
+"Add Task" button for adding the task.
+The Modal open:
+the first two input field you see the first one is for Parent task and its detail.
+if you click on the "subTask checkbox "the subtask will be shown.
+if you want two add the multiple task you just click the the button "Add Sub Task" and then agian push the Sub Task.
+
+first you push the sub task and then push the parent task then the sub task will shown to your task Modal.
+
+# drag and drop the Task
+
+you can change the task position from just doing the drag and drop 
 
 ## Available Scripts
 
 In the project directory, you can run:
 
-### `npm start`
+## first `npm i`
+
+### Second `npm start`
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
