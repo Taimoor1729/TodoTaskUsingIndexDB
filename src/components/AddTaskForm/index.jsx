@@ -20,7 +20,6 @@ const AddTaskForm = ({
     const { taskName, subTask, taskDetail } = state || {};
     const { subTaskName, subTaskDetail } = subTaskState || {};
 
-    console.log("subTaskState", state);
 
     return (
         <Box style={{marginTop: "10px"}}>

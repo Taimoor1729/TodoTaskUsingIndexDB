@@ -14,7 +14,6 @@ const idb =
 
 const insertDataInIndexedDb = () => {
   if (!idb) {
-    console.log("This browser doesn't support IndexedDB");
     return;
   }
 
@@ -26,7 +25,6 @@ const insertDataInIndexedDb = () => {
   };
 
   request.onupgradeneeded = function (event) {
-    console.log(event);
     const db = request.result;
 
     if (!db.objectStoreNames.contains("taskList")) {
@@ -35,7 +33,6 @@ const insertDataInIndexedDb = () => {
   };
 
   request.onsuccess = function () {
-    console.log("Database opened successfully");
 
     const db = request.result;
 
@@ -176,20 +173,16 @@ const App = () => {
 
   }
 
-  // const handleSubmit = (event) => {
-  //   const dbPromise = idb.open("task-management", 1);
+  const handleSubmitUpdate = (event ) => {
+    const dbPromise = idb.open("task-management", 1);
 
+    if (event?.taskName || event?.taskDetail) {
+      dbPromise.onsuccess = () => {
+        const db = dbPromise.result;
 
-  //   if (taskName && taskDetail) {
-  //     dbPromise.onsuccess = () => {
-  //       const db = dbPromise.result;
-
-  //       var tx = db.transaction("taskList", "readwrite");
-  //       var taskList = tx.objectStore("taskList");
-
-
+        var tx = db.transaction("taskList", "readwrite");
+        var taskList = tx.objectStore("taskList");
   //       if (addUser) {
-  //         console.log("taskName, taskDetail, taskDetail, subTask, subTaskArray", taskName, taskDetail, taskDetail, subTask, subTaskArray)
   //         const users = taskList.put({
   //           id: allTasks?.length + 1,
   //           taskName,
@@ -213,33 +206,36 @@ const App = () => {
   //           event.preventDefault();
   //         };
   //       } else {
-  //         const users = taskList.put({
-  //           id: selectedUser?.id,
-  //           taskName,
-  //           taskDetail
-  //         });
 
-  //         users.onsuccess = (query) => {
-  //           tx.oncomplete = function () {
-  //             db.close();
-  //           };
-  //           alert("Task updated!");
-  //           setState({
-  //             ...state,
-  //             taskName: null,
-  //             taskDetail: null
-  //           })
-  //           setEditUser(false);
-  //           getAllData();
-  //           setSelectedUser({});
-  //           event.preventDefault();
-  //         };
-  //       }
+          const users = taskList.put({
+            id: event?.id,
+            taskName: event?.taskName,
+            taskDetail: event?.taskDetail,
+            subTaskArray: event?.subTaskArray
+          });
+
+          users.onsuccess = (query) => {
+            tx.oncomplete = function () {
+              db.close();
+            };
+            alert("Task updated!");
+            setState({
+              ...state,
+              taskName: null,
+              taskDetail: null
+            })
+            // setEditUser(false);
+            getAllData();
+            // setSelectedUser({});
+            // event.preventDefault();
+          };
+        }
   //     };
-  //   } else {
-  //     alert("Please enter all details");
-  //   }
-  // };
+    } 
+  else {
+      alert("Please enter all details");
+    }
+  };
 
   const deleteSelected = (task) => {
     const dbPromise = idb.open("task-management", 1);
@@ -334,6 +330,7 @@ const App = () => {
         handleDragLeave={handleDragLeave}
         handleDrop={handleDrop}
         deleteSelected={deleteSelected}
+        handleSubmitUpdate={handleSubmitUpdate}
       />
     </Fragment>
   );

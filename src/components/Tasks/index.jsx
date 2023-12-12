@@ -1,7 +1,8 @@
 import React, { Fragment, useState } from 'react';
 import './style.css'
-
 import TaskDetail from '../TaskDetail';
+
+import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 
 const Tasks = ({
     taskList,
@@ -9,7 +10,8 @@ const Tasks = ({
     handleDragOver,
     handleDragLeave,
     handleDrop,
-    deleteSelected
+    deleteSelected,
+    handleSubmitUpdate
 }) => {
 
     const [detailmodalOpen, setDetailModalOpen] = useState(false);
@@ -43,12 +45,14 @@ const Tasks = ({
                                 onClick={() => handleTaskDEtail(task)}
 
                             >
-                                <p onClick={(e) => {
+                                {/* <p onClick={(e) => {
                                      e.stopPropagation();
                                      deleteSelected(task)
-                                }}>
-                                    X
-                                </p>
+                                }}> */}
+                                   <DeleteForeverIcon onClick={(e) => {
+                                     e.stopPropagation();
+                                     deleteSelected(task)}}  /> 
+                                {/* </p> */}
                                 <h5>{task.taskName}</h5>
                                 <p>{task.taskDetail}</p>
 
@@ -63,6 +67,7 @@ const Tasks = ({
                         open={detailmodalOpen}
                         task={selectedTask}
                         handleClose={handleModalClose} 
+                        handleSubmitUpdate={handleSubmitUpdate}
                         />
                         
                 )
