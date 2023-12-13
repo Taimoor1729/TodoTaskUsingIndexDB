@@ -208,7 +208,7 @@ const App = () => {
             id: event?.id,
             taskName: event?.taskName,
             taskDetail: event?.taskDetail,
-            subTaskArray: [...event?.subTaskArray]
+            subTaskArray: event?.subTaskArray
           });
 
           users.onsuccess = (query) => {

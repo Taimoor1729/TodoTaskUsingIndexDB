@@ -20,8 +20,6 @@ export default function TaskDetail({
     const [taskName, setTaskName] = useState(task.taskName);
     const [taskDetail, setTaskDetail] = useState(task.taskDetail);
     const [subTaskArray, setSubTaskArray] = useState(task.subTaskArray || []);
-    // const [subTaskName, setSubTaskName] = useState();
-    // const [subTaskDetail, setSubTaskDetail] = useState("");
 
     const handleEditToggle = () => {
         setEditMode(!editMode);
@@ -38,8 +36,8 @@ export default function TaskDetail({
     };
 
     const handleSubTaskChange = (index, field, value) => {
-        // Check if the new value is not empty before updating the state
-        if (value.trim() !== "") {
+        if (value.trim() !== null) {
+        
             const updatedSubTaskArray = [...subTaskArray];
 
             updatedSubTaskArray[index] = {
