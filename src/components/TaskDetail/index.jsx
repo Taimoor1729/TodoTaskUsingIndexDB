@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -8,7 +8,6 @@ import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
-// import Paper from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 
 export default function TaskDetail({
@@ -21,45 +20,45 @@ export default function TaskDetail({
     const [taskName, setTaskName] = useState(task.taskName);
     const [taskDetail, setTaskDetail] = useState(task.taskDetail);
     const [subTaskArray, setSubTaskArray] = useState(task.subTaskArray || []);
-    const [subTaskName, setSubTaskName] = useState();
-    const [subTaskDetail, setSubTaskDetail] = useState("");
+    // const [subTaskName, setSubTaskName] = useState();
+    // const [subTaskDetail, setSubTaskDetail] = useState("");
 
     const handleEditToggle = () => {
         setEditMode(!editMode);
     };
 
     const handleTaskChange = (event) => {
-     const {name, value} = event.target;
-     if (name === "taskName"){
-        setTaskName(value)
-     }
-     else if(name === "taskDetail"){
-        setTaskDetail(value)
-     }
+        const { name, value } = event.target;
+        if (name === "taskName") {
+            setTaskName(value)
+        }
+        else if (name === "taskDetail") {
+            setTaskDetail(value)
+        }
     };
 
     const handleSubTaskChange = (index, field, value) => {
-        // Update the subtask array based on the input field
-        const updatedSubTaskArray = [...subTaskArray];
+        // Check if the new value is not empty before updating the state
+        if (value.trim() !== "") {
+            const updatedSubTaskArray = [...subTaskArray];
 
-        updatedSubTaskArray[index] = {
-            ...updatedSubTaskArray[index],
-            [field]: value,
-        };
-        setSubTaskArray(updatedSubTaskArray);
+            updatedSubTaskArray[index] = {
+                ...updatedSubTaskArray[index],
+                [field]: value,
+            };
+
+            setSubTaskArray(updatedSubTaskArray);
+        }
     };
 
-    const handleSave = (event , id) => {
+    const handleSave = (event, id) => {
         event.preventDefault();
         handleSubmitUpdate({
             id,
             taskName,
             taskDetail,
             subTaskArray,
-            
         });
-
-        // handleEditToggle()
     }
 
     return (
@@ -78,22 +77,22 @@ export default function TaskDetail({
                             value={taskName}
                             name="taskName"
                             fullWidth
-                            onChange={handleTaskChange} 
+                            onChange={handleTaskChange}
                             margin="normal"
                         />
                     ) : (
                         <TextField
-                        label="Task Name"
-                        value={taskName}
-                        fullWidth
-                        InputProps={{
-                            readOnly: true,
-                        }}
-                        margin="normal"
-                    />
+                            label="Task Name"
+                            value={taskName}
+                            fullWidth
+                            InputProps={{
+                                readOnly: true,
+                            }}
+                            margin="normal"
+                        />
                     )}
                 </DialogTitle>
-                
+
                 <DialogContent>
                     {editMode ? (
                         <TextField
@@ -102,22 +101,22 @@ export default function TaskDetail({
                             name='taskDetail'
                             fullWidth
                             multiline
-                            onChange={handleTaskChange} 
+                            onChange={handleTaskChange}
                             margin="normal"
                         />
                     ) : (
                         <TextField
-                        label="Task Name"
-                        value={taskDetail}
-                        fullWidth
-                        InputProps={{
-                            readOnly: true,
-                        }}
-                        margin="normal"
-                    />
+                            label="Task Name"
+                            value={taskDetail}
+                            fullWidth
+                            InputProps={{
+                                readOnly: true,
+                            }}
+                            margin="normal"
+                        />
                     )}
 
-                    {task.subTaskArray && task.subTaskArray.length > 0 && (
+                    {subTaskArray && subTaskArray.length > 0 && (
                         <div style={{ marginTop: '16px' }}>
                             <Table>
                                 <TableBody>
@@ -125,52 +124,46 @@ export default function TaskDetail({
                                         <TableCell><strong>Sub Task Name</strong></TableCell>
                                         <TableCell><strong>Sub Task Detail</strong></TableCell>
                                     </TableRow>
-                                    {task.subTaskArray.map((subtask, index) => (
-                    <TableRow key={index}>
-                      <TableCell>
-                        <TextField
-                          value={subtask.subTaskName}
-                          name={`subtask.subTaskName.${index}`}
-                          fullWidth
-                          onChange={(e) =>
-                            handleSubTaskChange(index, 'subTaskName', e.target.value)
-                          }
-                          InputProps={{
-                            readOnly: !editMode,
-                          }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          value={subtask.subTaskDetail}
-                          name={`subtask.subTaskDetail.${index}`}
-                          fullWidth
-                          onChange={(e) =>
-                            handleSubTaskChange(index, 'subTaskDetail', e.target.value)
-                          }
-                          InputProps={{
-                            readOnly: !editMode,
-                          }}
-                        />
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                                    {subTaskArray.map((subtask, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell>
+                                                <TextField
+                                                    value={subtask.subTaskName}
+                                                    name='subTaskName'
+                                                    fullWidth
+                                                    onChange={(e) => handleSubTaskChange(index, 'subTaskName', e.target.value)}
+                                                    InputProps={{
+                                                        readOnly: !editMode,
+                                                    }}
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                <TextField
+                                                    value={subtask.subTaskDetail}
+                                                    name='subTaskDetail'
+                                                    fullWidth
+                                                    onChange={(e) => handleSubTaskChange(index, 'subTaskDetail', e.target.value)}
+                                                    InputProps={{
+                                                        readOnly: !editMode,
+                                                    }}
+                                                />
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
                                 </TableBody>
                             </Table>
+
                         </div>
                     )}
                 </DialogContent>
                 <DialogActions>
-                    {/* <Button onClick={handleSave}>
-                        {editMode ? null : 'Edit'}
-                    </Button> */}
                     <Button onClick={handleClose}>Close</Button>
                     {editMode ? (
-                        <Button onClick={(e) => handleSave(e , task.id)} color="primary">
+                        <Button onClick={(e) => handleSave(e, task.id)} color="primary">
                             Save Changes
                         </Button>
-                    ) : (  <Button onClick={handleEditToggle}>
-                       Edit
+                    ) : (<Button onClick={handleEditToggle}>
+                        Edit
                     </Button>)}
                 </DialogActions>
             </Dialog>

@@ -1,6 +1,5 @@
 import "./App.css";
 import { Fragment, useEffect, useState } from "react";
-import { USER_DATA } from "./data";
 
 import Header from "./components/Header";
 import Tasks from "./components/Tasks";
@@ -37,9 +36,7 @@ const insertDataInIndexedDb = () => {
     const db = request.result;
 
     var tx = db.transaction("taskList", "readwrite");
-    var taskList = tx.objectStore("taskList");
-
-    USER_DATA.forEach((item) => taskList.add(item));
+    // var taskList = tx.objectStore("taskList");
 
     return tx.complete;
   };
@@ -179,9 +176,9 @@ const App = () => {
     if (event?.taskName || event?.taskDetail) {
       dbPromise.onsuccess = () => {
         const db = dbPromise.result;
-
         var tx = db.transaction("taskList", "readwrite");
         var taskList = tx.objectStore("taskList");
+
   //       if (addUser) {
   //         const users = taskList.put({
   //           id: allTasks?.length + 1,
@@ -211,7 +208,7 @@ const App = () => {
             id: event?.id,
             taskName: event?.taskName,
             taskDetail: event?.taskDetail,
-            subTaskArray: event?.subTaskArray
+            subTaskArray: [...event?.subTaskArray]
           });
 
           users.onsuccess = (query) => {
