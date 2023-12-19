@@ -1,5 +1,5 @@
+import React, { Component, Fragment } from 'react';
 import "./App.css";
-import { Fragment, useEffect, useState } from "react";
 
 import Header from "./components/Header";
 import Tasks from "./components/Tasks";
@@ -11,106 +11,107 @@ const idb =
   window.msIndexedDB ||
   window.shimIndexedDB;
 
-const insertDataInIndexedDb = () => {
-  if (!idb) {
-    return;
+class App extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      allTasks: [],
+      selectedTaskIndex: null,
+      addtaskModalOpen: false,
+      state: {
+        taskName: "",
+        taskDetail: "",
+        subTask: false,
+        subTaskArray: []
+      },
+      subTaskState: {
+        subTaskName: "",
+        subTaskDetail: "",
+      }
+    };
   }
 
-  const request = idb.open("task-management", 1);
-
-  request.onerror = function (event) {
-    console.error("An error occurred with IndexedDB");
-    console.error(event);
+  insertDataInIndexedDb = () => {
+    if (!idb) {
+        return;
+      }
+    
+      const request = idb.open("task-management", 1);
+    
+      request.onerror = function (event) {
+        console.error("An error occurred with IndexedDB");
+        console.error(event);
+      };
+    
+      request.onupgradeneeded = function (event) {
+        const db = request.result;
+    
+        if (!db.objectStoreNames.contains("taskList")) {
+          db.createObjectStore("taskList", { keyPath: "id" });
+        }
+      };
+    
+      request.onsuccess = function () {
+    
+        const db = request.result;
+    
+        var tx = db.transaction("taskList", "readwrite");
+        // var taskList = tx.objectStore("taskList");
+    
+        return tx.complete;
+      };
   };
 
-  request.onupgradeneeded = function (event) {
-    const db = request.result;
-
-    if (!db.objectStoreNames.contains("taskList")) {
-      db.createObjectStore("taskList", { keyPath: "id" });
-    }
+  handleTaskModalOpen = () => {
+    this.setState({ addtaskModalOpen: true });
   };
 
-  request.onsuccess = function () {
-
-    const db = request.result;
-
-    var tx = db.transaction("taskList", "readwrite");
-    // var taskList = tx.objectStore("taskList");
-
-    return tx.complete;
+  handleTaskModalClose = () => {
+    this.setState({ addtaskModalOpen: false });
   };
-};
 
-const App = () => {
-
-  const [allTasks, setAllTasks] = useState([]);
-  const [selectedTaskIndex, setSelectedtaskIndex] = useState(null);
-  const [addtaskModalOpen, setAddTaskModalOpen] = useState(false);
-
-  const [state, setState] = useState({
-    taskName: "",
-    taskDetail: "",
-    subTask: false,
-    subTaskArray: []
-  })
-
-  const [subTaskState, setSubTaskState] = useState({
-    subTaskName: "",
-    subTaskDetail: "",
-  })
-
-
-  const {
-    taskName,
-    taskDetail,
-    subTask,
-    subTaskArray
-  } = state;
-
-  const handleTaskModalOpen = () => {
-    setAddTaskModalOpen(true);
-  }
-
-  const handleTaskModalClose = () => {
-    setAddTaskModalOpen(false);
-  }
-
-
-  const handleChange = (event) => {
+  handleChange = (event) => {
     const value = event.target.value;
-    setState({
-      ...state,
-      [event.target.name]: value
-    })
-  }
+    this.setState((prevState) => ({
+      state: {
+        ...prevState.state,
+        [event.target.name]: value
+      }
+    }));
+  };
 
-  const handleSubTaskChange = (event) => {
+  handleSubTaskChange = (event) => {
     const value = event.target.value;
-    setSubTaskState({
-      ...subTaskState,
-      [event.target.name]: value
-    })
-  }
+    this.setState((prevState) => ({
+      subTaskState: {
+        ...prevState.subTaskState,
+        [event.target.name]: value
+      }
+    }));
+  };
 
-  const handleSubTaskClick = (event) => {
+  handleSubTaskClick = (event) => {
     event.preventDefault();
-    setState({
-      ...state,
-      subTaskArray: [...state.subTaskArray, subTaskState]
-    });
+    this.setState((prevState) => ({
+      state: {
+        ...prevState.state,
+        subTaskArray: [...prevState.state.subTaskArray, prevState.subTaskState]
+      },
+      subTaskState: {
+        subTaskName: "",
+        subTaskDetail: "",
+      }
+    }));
+  };
 
-    setSubTaskState({
-      subTaskName: "",
-      subTaskDetail: "",
-    })
-  }
+  handleCheckbox = (event) => {
+    this.setState((prevState) => ({
+      state: { ...prevState.state, subTask: event.target.checked }
+    }));
+  };
 
-  const handleCheckbox = (event) => {
-    setState({ ...state, subTask: event.target.checked })
-  }
-
-  const getAllData = () => {
+  getAllData = () => {
     const dbPromise = idb.open("task-management", 1);
     dbPromise.onsuccess = () => {
       const db = dbPromise.result;
@@ -120,7 +121,9 @@ const App = () => {
       const users = taskList.getAll();
 
       users.onsuccess = (query) => {
-        setAllTasks(query.srcElement.result);
+        this.setState({
+           allTasks: query.srcElement.result
+        });
       };
 
       tx.oncomplete = function () {
@@ -129,8 +132,10 @@ const App = () => {
     };
   };
 
+  handleSubmit = (event) => {
+    const{allTasks, state} = this.state;
+    const {taskName, taskDetail, subTask, subTaskArray } = state;
 
-  const handleSubmit = (event) => {
     const dbPromise = idb.open("task-management", 1);
 
     if (taskName && taskDetail) {
@@ -152,25 +157,24 @@ const App = () => {
           tx.oncomplete = function () {
             db.close();
           };
-          handleTaskModalClose()
+          this.handleTaskModalClose()
           alert("Task added!");
-          setState({
+          this.setState({
             ...state,
             taskName: null,
             taskDetail: null
           })
           // setAddUser(false);
-          getAllData();
+          this.getAllData();
           event.preventDefault();
         };
       };
     } else {
       alert("Please enter all details");
     }
+  };
 
-  }
-
-  const handleSubmitUpdate = (event ) => {
+  handleSubmitUpdate = (event) => {
     const dbPromise = idb.open("task-management", 1);
 
     if (event?.taskName || event?.taskDetail) {
@@ -178,33 +182,7 @@ const App = () => {
         const db = dbPromise.result;
         var tx = db.transaction("taskList", "readwrite");
         var taskList = tx.objectStore("taskList");
-
-  //       if (addUser) {
-  //         const users = taskList.put({
-  //           id: allTasks?.length + 1,
-  //           taskName,
-  //           taskDetail,
-  //           subTask,
-  //           subTaskArray
-  //         });
-
-  //         users.onsuccess = (query) => {
-  //           tx.oncomplete = function () {
-  //             db.close();
-  //           };
-  //           alert("Task added!");
-  //           setState({
-  //             ...state,
-  //             taskName: null,
-  //             taskDetail: null
-  //           })
-  //           setAddUser(false);
-  //           getAllData();
-  //           event.preventDefault();
-  //         };
-  //       } else {
-
-          const users = taskList.put({
+        const users = taskList.put({
             id: event?.id,
             taskName: event?.taskName,
             taskDetail: event?.taskDetail,
@@ -216,13 +194,13 @@ const App = () => {
               db.close();
             };
             alert("Task updated!");
-            setState({
-              ...state,
+            this.setState({
+              ...this.state,
               taskName: null,
               taskDetail: null
             })
             // setEditUser(false);
-            getAllData();
+            this.getAllData();
             // setSelectedUser({});
             // event.preventDefault();
           };
@@ -234,7 +212,7 @@ const App = () => {
     }
   };
 
-  const deleteSelected = (task) => {
+  deleteSelected = (task) => {
     const dbPromise = idb.open("task-management", 1);
 
     dbPromise.onsuccess = function () {
@@ -248,89 +226,84 @@ const App = () => {
           db.close();
         };
         alert("Task deleted!");
-        getAllData();
+        this.getAllData();
       };
     };
   };
 
-
-  //  Drag & Drop line items start
-  const handleDragStart = (index, task) => {
-    // e.dataTransfer.setData("text/plain", index);
-    setSelectedtaskIndex(index);
-
+  handleDragStart = (index, task) => {
+    this.setState({ selectedTaskIndex: index });
   };
 
-  const handleDragOver = (event) => {
+  handleDragOver = (event) => {
     event.preventDefault();
     const element = event.target.closest('div');
     element.classList.add("highlight");
-  }
+  };
 
-  const handleDragLeave = (event) => {
+  handleDragLeave = (event) => {
     event.preventDefault();
     const element = event.target.closest('div');
     if (element) {
       element.classList.remove("highlight");
     }
-  }
+  };
 
-  const handleDrop = (e, task, index) => {
+  handleDrop = (e, task, index) => {
     e.preventDefault();
     const element = e.target.closest('div');
     element?.classList?.remove("highlight");
-    const copyList = [...allTasks];
+    const copyList = [...this.state.allTasks];
 
     if (
-      selectedTaskIndex < 0 ||
-      selectedTaskIndex >= copyList.length ||
+      this.state.selectedTaskIndex < 0 ||
+      this.state.selectedTaskIndex >= copyList.length ||
       index < 0 ||
       index >= copyList.length ||
-      selectedTaskIndex === index
+      this.state.selectedTaskIndex === index
     ) {
       return;
     }
 
-    const temp = copyList[selectedTaskIndex];
-    copyList[selectedTaskIndex] = copyList[index];
+    const temp = copyList[this.state.selectedTaskIndex];
+    copyList[this.state.selectedTaskIndex] = copyList[index];
     copyList[index] = temp;
 
-    setAllTasks(copyList);
-    
+    this.setState({ allTasks: copyList });
+  };
+
+  componentDidMount() {
+    this.insertDataInIndexedDb();
+    this.getAllData();
   }
 
-
-  useEffect(() => {
-    insertDataInIndexedDb();
-    getAllData();
-  }, []);
-
-  return (
-    <Fragment>
-      <Header
-        addtaskModalOpen={addtaskModalOpen}
-        state={state}
-        subTaskState={subTaskState}
-        handleChange={handleChange}
-        handleSubTaskChange={handleSubTaskChange}
-        handleSubmit={handleSubmit}
-        handleCheckbox={handleCheckbox}
-        handleSubTaskClick={handleSubTaskClick}
-        handleTaskModalOpen={handleTaskModalOpen}
-        handleTaskModalClose={handleTaskModalClose}
-
-      />
-      <Tasks
-        taskList={allTasks}
-        handleDragStart={handleDragStart}
-        handleDragOver={handleDragOver}
-        handleDragLeave={handleDragLeave}
-        handleDrop={handleDrop}
-        deleteSelected={deleteSelected}
-        handleSubmitUpdate={handleSubmitUpdate}
-      />
-    </Fragment>
-  );
-};
+  render() {
+    return (
+      <Fragment>
+        <Header
+          addtaskModalOpen={this.state.addtaskModalOpen}
+          state={this.state.state}
+          subTaskState={this.state.subTaskState}
+          handleChange={this.handleChange}
+          handleSubTaskChange={this.handleSubTaskChange}
+          handleSubmit={this.handleSubmit}
+          handleCheckbox={this.handleCheckbox}
+          handleSubTaskClick={this.handleSubTaskClick}
+          handleTaskModalOpen={this.handleTaskModalOpen}
+          handleTaskModalClose={this.handleTaskModalClose}
+        />
+        <Tasks
+          taskList={this.state.allTasks}
+          handleDragStart={this.handleDragStart}
+          handleDragOver={this.handleDragOver}
+          handleDragLeave={this.handleDragLeave}
+          handleDrop={this.handleDrop}
+          deleteSelected={this.deleteSelected}
+          handleSubmitUpdate={this.handleSubmitUpdate}
+        />
+      </Fragment>
+    );
+  }
+}
 
 export default App;
