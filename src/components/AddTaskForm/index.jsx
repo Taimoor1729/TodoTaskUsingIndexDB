@@ -49,7 +49,7 @@ const AddTaskForm = ({
                     <Checkbox checked={subTask} name="subTask" onChange={(e) => handleCheckbox(e)} />
                 }
                 label="Subtask"
-                disabled = {!taskName  || !taskDetail }
+                disabled = {!taskName.trim() || !taskDetail.trim() }
             />
             {
                 subTask && (

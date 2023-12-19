@@ -45,14 +45,11 @@ const Tasks = ({
                                 onClick={() => handleTaskDEtail(task)}
 
                             >
-                                {/* <p onClick={(e) => {
-                                     e.stopPropagation();
-                                     deleteSelected(task)
-                                }}> */}
+                               
                                    <DeleteForeverIcon onClick={(e) => {
                                      e.stopPropagation();
                                      deleteSelected(task)}}  /> 
-                                {/* </p> */}
+                               
                                 <h5>{task.taskName}</h5>
                                 <p>{task.taskDetail}</p>
 
